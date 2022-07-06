@@ -17,6 +17,14 @@ mp_hands = mp.solutions.hands
 video = cv2.VideoCapture(0)
 '''以上是影像畫圖,手勢相關,與串流的初始化'''
 
+'''一下半徑用參數'''
+previousX = 0
+previousY = 0
+currentX = 0
+currentY = 0
+r = 1
+'''一上半徑用參數'''
+
 '''以下兩個串列,侍衛移動平均值設置,讓xy座標可以各存入七個座標後再取平均值'''
 movingX = []
 movingY = []
@@ -89,6 +97,23 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.8,ma
                 yMean = sum(movingY) // len(movingY)
                 win32api.SetCursorPos((xMean*7-2500,yMean*6-3000)) # 教室電腦,浮標移動比例已調整好,可用了
                 '''以上是虛擬滑鼠移動功能區塊'''
+
+                '''***以下是根據半徑大小,看能否完全移除指標抖動'''
+                # currentX = fingerMap[0][1]
+                # currentY = fingerMap[0][2]
+
+                # if ((currentX-previousX)**2+(currentY-previousY)**2) <= ((previousX-(previousX+r))**2+(previousY-(previousY+r))**2):
+                #     X,Y = previousX,previousY
+                #     print(f"previous: {X},{Y}")
+                #     # win32api.SetCursorPos((X*6-2500,Y*6-2500)) # 家用
+                #     win32api.SetCursorPos((X*7-2500,Y*6-3000)) # 教室電腦,浮標移動比例已調整好,可用了
+                # else:
+                #     previousX, previousY = currentX,currentY
+                #     X,Y = previousX,previousY
+                #     print(f"current: {X},{Y}")
+                #     # win32api.SetCursorPos((X*6-2500,Y*6-2500)) # 家用
+                #     win32api.SetCursorPos((X*7-2500,Y*6-3000)) # 教室電腦,浮標移動比例已調整好,可用了
+                '''***以上是根據半徑比大小,看能否完全移除指標抖動'''
             except:
                 pass
 
