@@ -5,7 +5,8 @@ import pyautogui
 import autopy
 # import win32api
 
-'''7.14.2022: Virtual Mouse complete version 1.4 / 虛擬滑鼠完整版 1.4v'''
+'''7.18 final version'''
+'''7.17.2022: Virtual Mouse test version / 虛擬滑鼠測試版版'''
 
 '''以下是影像畫圖,手勢相關,與串流的初始化; image and hand-position objects initialization'''
 mp_drawing = mp.solutions.drawing_utils
@@ -18,8 +19,7 @@ previousX = 0
 previousY = 0
 currentX = 0
 currentY = 0
-r1 = 3
-r2 = 10
+r = 3.5
 ''''''
 
 '''以下取螢幕尺寸 / screen and frame resizing parameters'''
@@ -112,23 +112,26 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.8,ma
                 if len(movingY) > 4:
                     movingY.pop(0)
 
-                if ((movingX[-1]-movingX[-3])**2+(movingY[-1]-movingY[-3])**2) <= ((movingX[-3]-(movingX[-3]+r1))**2+(movingY[-3]-(movingY[-3]+r1))**2):
-                    '''設定指標半徑,新座標在前座標面積內,則指標不變動,反之採用新座標,用畢氏定理半段距離大小,主要處裡靜態指標防止抖動
+                currentX = sum(movingX)/len(movingX)
+                currentY = sum(movingY)/len(movingY)
+
+                if ((int(currentX-previousX))**2+(int(currentY-previousY))**2) <= (int(previousX-(previousX+r))**2+int(previousY-(previousY+r))**2):
+                    '''設定指標半徑,新座標在前座標面積內,則指標不變動,反之採用新座標,用畢氏定理半段距離大小,主要處裡靜態指標防止抖動,xy座標採用四次座標的平均值
                     using Pythagorean & Circle area,if new coordinate falls within previous area, no movement change, otherwise, use new coordinate
-                    main purpose is to prevent cursor shaking when still'''
-                    tempX, tempY = previousX,previousY 
+                    main purpose is to prevent cursor shaking when still,xy in if is taken form the average from 4 loops of same xy'''
+                    tempX, tempY = int(previousX),int(previousY) 
                     newX = np.interp(tempX,(frameRx,wCam-frameRx),(0,wScr)) # keep hand movement & cursor coherent within range of rectangle
                     newY = np.interp(tempY*2-650,(frameRy,hCam-frameRy),(0,hScr))    
                     autopy.mouse.move(newX,newY)
+                    # print(f"still => tempX: {tempX}, tempY: {tempY}")
                 else:
                     '''使用移動平均值,讓指標移動順暢/using average of 4 coordinates to allow cursor move smoothly'''
-                    currentX = sum(movingX)//len(movingX)
-                    currentY = sum(movingY)//len(movingY)
                     previousX = currentX
                     previousY = currentY
                     newX = np.interp(previousX,(frameRx,wCam-frameRx),(0,wScr))
                     newY = np.interp(previousY*2-650,(frameRy,hCam-frameRy),(0,hScr)) # to prevent left click auto triggler when index tip reaching out the screen 
                     autopy.mouse.move(newX,newY)
+                    # print(f"moving => tempX: {tempX}, tempY: {tempY}")
                 '''以上是平均值與畢氏定理綜合版'''
 
                 '''一下是滑鼠移動取五點座標平均值的測試 / below: development notes'''
