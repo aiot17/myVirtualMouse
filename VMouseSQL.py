@@ -3,7 +3,9 @@ import cv2
 import numpy as np
 import pyautogui
 import autopy
-import connect
+# import connect
+
+# connect.set_interval(connect.conn, 3)
 
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands 
@@ -103,4 +105,6 @@ with mp_hands.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.8,ma
         
         if cv2.waitKey(10) & 0xFF == ord('q'):
             break
+            
 video.release()
+# connect.t.cancel()
